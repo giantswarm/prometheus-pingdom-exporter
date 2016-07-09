@@ -43,12 +43,14 @@ make docker-image
 
 Running the binary directly:
 ```
-TODO
+$ prometheus-pingdom-exporter server <USERNAME> <PASSWORD> <API-KEY>
+2016/07/09 12:20:51 Listening on port 8000
 ```
 
 Running in a Docker container:
 ```
-TODO
+$ docker run -p 8000:8000 giantswarm/prometheus-pingdom-exporter:latest server <USERNAME> <PASSWORD> <API-KEY>
+2016/07/09 11:22:04 Listening on port 8000
 ```
 
 Help information can be found with the `--help` flag.
