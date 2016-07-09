@@ -23,6 +23,7 @@ Download the latest docker image from here: https://hub.docker.com/r/giantswarm/
 
 #### Dependencies
 
+- [github.com/russellcardullo/go-pingdom](https://github.com/russellcardullo/go-pingdom)
 - [github.com/prometheus/client_golang](https://github.com/prometheus/client_golang)
 - [github.com/spf13/cobra](https://github.com/spf13/cobra)
 
