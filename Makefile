@@ -44,6 +44,8 @@ clean:
 	@builder get dep -b 1238ba19d24b0b9ceee2094e1cb31947d45c3e86 https://github.com/spf13/cobra.git $(GOPATH)/src/github.com/spf13/cobra
 	@builder get dep -b cb88ea77998c3f024757528e3305022ab50b43be https://github.com/spf13/pflag.git $(GOPATH)/src/github.com/spf13/pflag
 	
+	@builder get dep -b cf63f55faae709a6bcd0ce28c4ae26f6106954cb https://github.com/russellcardullo/go-pingdom $(GOPATH)/src/github.com/russellcardullo/go-pingdom
+
 	@builder get dep -b 488edd04dc224ba64c401747cd0a4b5f05dfb234 https://github.com/prometheus/client_golang.git $(GOPATH)/src/github.com/prometheus/client_golang
 	@builder get dep -b 3ac7bf7a47d159a033b107610db8a1b6575507a4 https://github.com/beorn7/perks.git $(GOPATH)/src/github.com/beorn7/perks
 	@builder get dep -b 3b06fc7a4cad73efce5fe6217ab6c33e7231ab4a https://github.com/golang/protobuf.git $(GOPATH)/src/github.com/golang/protobuf
