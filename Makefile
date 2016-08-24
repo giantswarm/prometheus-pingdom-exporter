@@ -4,7 +4,7 @@ BUILD_PATH := $(shell pwd)/.gobuild
 GS_PATH := $(BUILD_PATH)/src/github.com/giantswarm
 GOPATH := $(BUILD_PATH)
 
-GOVERSION=1.6.2
+GOVERSION=1.7
 
 BIN := $(PROJECT)
 
