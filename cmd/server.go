@@ -26,6 +26,11 @@ var (
 	waitSeconds int
 	port        int
 
+	pingdomUp = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "pingdom_up",
+		Help: "Whether the last pingdom scrape was successfull (1: up, 0: down)",
+	})
+
 	pingdomCheckStatus = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "pingdom_check_status",
 		Help: "The current status of the check (0: up, 1: unconfirmed_down, 2: down, -1: paused, -2: unknown)",
@@ -43,8 +48,13 @@ func init() {
 	serverCmd.Flags().IntVar(&waitSeconds, "wait", 10, "time (in seconds) between accessing the Pingdom  API")
 	serverCmd.Flags().IntVar(&port, "port", 8000, "port to listen on")
 
+	prometheus.MustRegister(pingdomUp)
 	prometheus.MustRegister(pingdomCheckStatus)
 	prometheus.MustRegister(pingdomCheckResponseTime)
+}
+
+func sleep() {
+	time.Sleep(time.Second * time.Duration(waitSeconds))
 }
 
 func serverRun(cmd *cobra.Command, args []string) {
@@ -66,8 +76,12 @@ func serverRun(cmd *cobra.Command, args []string) {
 			checks, err := client.Checks.List()
 			if err != nil {
 				log.Println("Error getting checks ", err)
-				os.Exit(1)
+				pingdomUp.Set(0)
+
+				sleep()
+				continue
 			}
+			pingdomUp.Set(1)
 
 			for _, check := range checks {
 				id := strconv.Itoa(check.ID)
@@ -114,7 +128,7 @@ func serverRun(cmd *cobra.Command, args []string) {
 				).Set(float64(check.LastResponseTime))
 			}
 
-			time.Sleep(time.Second * time.Duration(waitSeconds))
+			sleep()
 		}
 	}()
 
