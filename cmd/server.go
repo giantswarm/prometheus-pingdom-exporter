@@ -23,8 +23,9 @@ var (
 		Run:   serverRun,
 	}
 
-	waitSeconds int
-	port        int
+	waitSeconds  int
+	port         int
+	accountEmail string
 
 	pingdomUp = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "pingdom_up",
@@ -47,6 +48,7 @@ func init() {
 
 	serverCmd.Flags().IntVar(&waitSeconds, "wait", 10, "time (in seconds) between accessing the Pingdom  API")
 	serverCmd.Flags().IntVar(&port, "port", 8000, "port to listen on")
+	serverCmd.Flags().StringVar(&accountEmail, "account-email", "", "account email for multi-user authentication")
 
 	prometheus.MustRegister(pingdomUp)
 	prometheus.MustRegister(pingdomCheckStatus)
@@ -65,11 +67,23 @@ func serverRun(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	client := pingdom.NewClient(
-		flag.Arg(1),
-		flag.Arg(2),
-		flag.Arg(3),
-	)
+	var client *pingdom.Client
+	if accountEmail == "" {
+		client = pingdom.NewClient(
+			flag.Arg(1),
+			flag.Arg(2),
+			flag.Arg(3),
+		)
+	} else {
+		// If an account email is specified, use multi-user authentication
+		log.Println("using multi-user authentication:", accountEmail)
+		client = pingdom.NewMultiUserClient(
+			flag.Arg(1),
+			flag.Arg(2),
+			flag.Arg(3),
+			accountEmail,
+		)
+	}
 
 	go func() {
 		for {
