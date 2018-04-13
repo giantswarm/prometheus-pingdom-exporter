@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -34,12 +35,12 @@ var (
 	pingdomCheckStatus = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "pingdom_check_status",
 		Help: "The current status of the check (0: up, 1: unconfirmed_down, 2: down, -1: paused, -2: unknown)",
-	}, []string{"id", "name", "hostname", "resolution", "paused"})
+	}, []string{"id", "name", "hostname", "resolution", "paused", "tags"})
 
 	pingdomCheckResponseTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "pingdom_check_response_time",
 		Help: "The response time of last test in milliseconds",
-	}, []string{"id", "name", "hostname", "resolution", "paused"})
+	}, []string{"id", "name", "hostname", "resolution", "paused", "tags"})
 )
 
 func init() {
@@ -73,7 +74,10 @@ func serverRun(cmd *cobra.Command, args []string) {
 
 	go func() {
 		for {
-			checks, err := client.Checks.List()
+			params := map[string]string{
+				"include_tags": "true",
+			}
+			checks, err := client.Checks.List(params)
 			if err != nil {
 				log.Println("Error getting checks ", err)
 				pingdomUp.Set(0)
@@ -111,12 +115,19 @@ func serverRun(cmd *cobra.Command, args []string) {
 					paused = "true"
 				}
 
+				var tagsRaw []string
+				for _, tag := range check.Tags {
+					tagsRaw = append(tagsRaw, tag.Name)
+				}
+				tags := strings.Join(tagsRaw, ",")
+
 				pingdomCheckStatus.WithLabelValues(
 					id,
 					check.Name,
 					check.Hostname,
 					resolution,
 					paused,
+					tags,
 				).Set(status)
 
 				pingdomCheckResponseTime.WithLabelValues(
@@ -125,6 +136,7 @@ func serverRun(cmd *cobra.Command, args []string) {
 					check.Hostname,
 					resolution,
 					paused,
+					tags,
 				).Set(float64(check.LastResponseTime))
 			}
 
