@@ -22,8 +22,12 @@ type Check interface {
 // Return a list of checks from Pingdom.
 // This returns type CheckResponse rather than Check since the
 // pingdom API does not return a complete representation of a check.
-func (cs *CheckService) List() ([]CheckResponse, error) {
-	req, err := cs.client.NewRequest("GET", "/api/2.0/checks", nil)
+func (cs *CheckService) List(params ...map[string]string) ([]CheckResponse, error) {
+	param := map[string]string{}
+	if len(params) == 1 {
+		param = params[0]
+	}
+	req, err := cs.client.NewRequest("GET", "/api/2.0/checks", param)
 	if err != nil {
 		return nil, err
 	}

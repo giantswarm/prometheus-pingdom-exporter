@@ -31,7 +31,8 @@ var detailedCheckJson = `
 	"hostname" : "s7.mydomain.com",
 	"status" : "up",
 	"lasterrortime" : 1293143467,
-	"lasttesttime" : 1294064823
+	"lasttesttime" : 1294064823,
+	"tags": []
 }
 `
 
