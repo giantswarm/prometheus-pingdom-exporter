@@ -19,31 +19,39 @@ type PingdomError struct {
 
 // CheckResponse represents the json response for a check from the Pingdom API
 type CheckResponse struct {
-	ID                       int               `json:"id"`
-	Name                     string            `json:"name"`
-	Resolution               int               `json:"resolution,omitempty"`
-	SendToAndroid            bool              `json:"sendtoandroid,omitempty"`
-	SendToEmail              bool              `json:"sendtoemail,omitempty"`
-	SendToIPhone             bool              `json:"sendtoiphone,omitempty"`
-	SendToSms                bool              `json:"sendtosms,omitempty"`
-	SendToTwitter            bool              `json:"sendtotwitter,omitempty"`
-	SendNotificationWhenDown int               `json:"sendnotificationwhendown,omitempty"`
-	NotifyAgainEvery         int               `json:"notifyagainevery,omitempty"`
-	NotifyWhenBackup         bool              `json:"notifywhenbackup,omitempty"`
-	Created                  int64             `json:"created,omitempty"`
-	Hostname                 string            `json:"hostname,omitempty"`
-	Status                   string            `json:"status,omitempty"`
-	LastErrorTime            int64             `json:"lasterrortime,omitempty"`
-	LastTestTime             int64             `json:"lasttesttime,omitempty"`
-	LastResponseTime         int64             `json:"lastresponsetime,omitempty"`
-	Paused                   bool              `json:"paused,omitempty"`
-	ContactIds               []int             `json:"contactids,omitempty"`
-	Type                     CheckResponseType `json:"type,omitempty"`
+	ID                       int                `json:"id"`
+	Name                     string             `json:"name"`
+	Resolution               int                `json:"resolution,omitempty"`
+	SendToAndroid            bool               `json:"sendtoandroid,omitempty"`
+	SendToEmail              bool               `json:"sendtoemail,omitempty"`
+	SendToIPhone             bool               `json:"sendtoiphone,omitempty"`
+	SendToSms                bool               `json:"sendtosms,omitempty"`
+	SendToTwitter            bool               `json:"sendtotwitter,omitempty"`
+	SendNotificationWhenDown int                `json:"sendnotificationwhendown,omitempty"`
+	NotifyAgainEvery         int                `json:"notifyagainevery,omitempty"`
+	NotifyWhenBackup         bool               `json:"notifywhenbackup,omitempty"`
+	Created                  int64              `json:"created,omitempty"`
+	Hostname                 string             `json:"hostname,omitempty"`
+	Status                   string             `json:"status,omitempty"`
+	LastErrorTime            int64              `json:"lasterrortime,omitempty"`
+	LastTestTime             int64              `json:"lasttesttime,omitempty"`
+	LastResponseTime         int64              `json:"lastresponsetime,omitempty"`
+	Paused                   bool               `json:"paused,omitempty"`
+	ContactIds               []int              `json:"contactids,omitempty"`
+	IntegrationIds           []int              `json:"integrationids,omitempty"`
+	Type                     CheckResponseType  `json:"type,omitempty"`
+	Tags                     []CheckResponseTag `json:"tags,omitempty"`
 }
 
 type CheckResponseType struct {
 	Name string                    `json:"-"`
 	HTTP *CheckResponseHTTPDetails `json:"http,omitempty"`
+}
+
+type CheckResponseTag struct {
+	Name  string `json:"name"`
+	Type  string `json:"type"`
+	Count int    `json:"count"`
 }
 
 type ContactResponse struct {
@@ -76,7 +84,7 @@ func (c *CheckResponseType) UnmarshalJSON(b []byte) error {
 		if len(v) != 1 {
 			return fmt.Errorf("Check detailed response `check.type` contains more than one object: %+v", v)
 		}
-		for k, _ := range v {
+		for k := range v {
 			c.Name = k
 		}
 
