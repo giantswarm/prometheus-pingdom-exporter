@@ -59,18 +59,26 @@ func sleep() {
 }
 
 func serverRun(cmd *cobra.Command, args []string) {
+	var client *pingdom.Client
 	flag.Parse()
 
-	if len(cmd.Flags().Args()) != 3 {
+	if len(cmd.Flags().Args()) == 3 {
+		client = pingdom.NewClient(
+			flag.Arg(1),
+			flag.Arg(2),
+			flag.Arg(3),
+		)
+	} else if len(cmd.Flags().Args()) == 4 {
+		client = pingdom.NewMultiUserClient(
+			flag.Arg(1),
+			flag.Arg(2),
+			flag.Arg(3),
+			flag.Arg(4),
+		)
+	} else {
 		cmd.Help()
 		os.Exit(1)
 	}
-
-	client := pingdom.NewClient(
-		flag.Arg(1),
-		flag.Arg(2),
-		flag.Arg(3),
-	)
 
 	go func() {
 		for {
