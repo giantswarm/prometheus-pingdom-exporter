@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/russellcardullo/go-pingdom/pingdom"
 	"github.com/spf13/cobra"
 )
@@ -172,7 +173,7 @@ func serverRun(cmd *cobra.Command, args []string) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "")
 	})
-	http.Handle("/metrics", prometheus.Handler())
+	http.Handle("/metrics", promhttp.Handler())
 
 	log.Print("Listening on port ", port)
 
