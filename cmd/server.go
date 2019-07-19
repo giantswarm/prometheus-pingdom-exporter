@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"reflect"
 	"strconv"
 	"strings"
 	"syscall"
@@ -190,6 +191,8 @@ func parseStatus(s string) (status float64) {
 	return
 }
 
+var publishedLabels = make(map[int][]string)
+
 func exportCheck(check pingdom.CheckResponse, details map[string]string) {
 	var (
 		id         = strconv.Itoa(check.ID)
@@ -228,6 +231,11 @@ func exportCheck(check pingdom.CheckResponse, details map[string]string) {
 		country,
 		city,
 	}
+	if old, ok := publishedLabels[check.ID]; ok && !reflect.DeepEqual(old, values) {
+		pingdomCheckStatus.DeleteLabelValues(old...)
+		pingdomCheckResponseTime.DeleteLabelValues(old...)
+	}
+	publishedLabels[check.ID] = values
 
 	pingdomCheckStatus.WithLabelValues(values...).Set(status)
 	pingdomCheckResponseTime.WithLabelValues(values...).Set(float64(check.LastResponseTime))
