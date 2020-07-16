@@ -4,7 +4,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/giantswarm/prometheus-pingdom-exporter)](https://goreportcard.com/report/github.com/giantswarm/prometheus-pingdom-exporter)
 [![GoDoc](https://godoc.org/github.com/giantswarm/prometheus-pingdom-exporter?status.svg)](http://godoc.org/github.com/giantswarm/prometheus-pingdom-exporter)
 [![Docker](https://img.shields.io/docker/pulls/giantswarm/prometheus-pingdom-exporter.svg)](http://hub.docker.com/r/giantswarm/prometheus-pingdom-exporter) 
-[![IRC Channel](https://img.shields.io/badge/irc-%23giantswarm-blue.svg)](https://kiwiirc.com/client/irc.freenode.net/#giantswarm)
 
 `prometheus-pingdom-exporter` exports Pingdom metrics to Prometheus.
 
@@ -59,7 +58,6 @@ Help information can be found with the `--help` flag.
 ## Contact
 
 - Mailing list: [giantswarm](https://groups.google.com/forum/!forum/giantswarm)
-- IRC: #[giantswarm](irc://irc.freenode.org:6667/#giantswarm) on freenode.org
 - Bugs: [issues](https://github.com/giantswarm/prometheus-pingdom-exporter/issues)
 
 ## Contributing & Reporting Bugs
