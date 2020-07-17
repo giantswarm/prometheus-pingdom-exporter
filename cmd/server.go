@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"reflect"
 	"strconv"
 	"strings"
 	"syscall"
@@ -81,6 +82,7 @@ func serverRun(cmd *cobra.Command, args []string) {
 	}
 
 	go func() {
+		var oldCheckMetrics map[int]prometheus.Labels
 		for {
 			params := map[string]string{
 				"include_tags": "true",
@@ -95,6 +97,7 @@ func serverRun(cmd *cobra.Command, args []string) {
 			}
 			pingdomUp.Set(1)
 
+			checkMetrics := make(map[int]prometheus.Labels)
 			for _, check := range checks {
 				id := strconv.Itoa(check.ID)
 
@@ -129,24 +132,29 @@ func serverRun(cmd *cobra.Command, args []string) {
 				}
 				tags := strings.Join(tagsRaw, ",")
 
-				pingdomCheckStatus.WithLabelValues(
-					id,
-					check.Name,
-					check.Hostname,
-					resolution,
-					paused,
-					tags,
-				).Set(status)
+				labels := map[string]string{
+					"id": id,
+					"name": check.Name,
+					"hostname": check.Hostname,
+					"resolution": resolution,
+					"paused": paused,
+					"tags": tags,
+				}
 
-				pingdomCheckResponseTime.WithLabelValues(
-					id,
-					check.Name,
-					check.Hostname,
-					resolution,
-					paused,
-					tags,
-				).Set(float64(check.LastResponseTime))
+				pingdomCheckStatus.With(labels).Set(status)
+				pingdomCheckResponseTime.With(labels).Set(float64(check.LastResponseTime))
+
+				checkMetrics[check.ID] = labels
 			}
+
+			for id, oldLabels := range oldCheckMetrics {
+				if labels, found := checkMetrics[id]; !found || !reflect.DeepEqual(oldLabels, labels) {
+					pingdomCheckStatus.Delete(oldLabels)
+					pingdomCheckResponseTime.Delete(oldLabels)
+				}
+			}
+
+			oldCheckMetrics = checkMetrics
 
 			sleep()
 		}
