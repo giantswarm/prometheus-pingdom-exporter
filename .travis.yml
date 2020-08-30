@@ -3,27 +3,14 @@ sudo: false # Explicitly use container-based infrastructure
 language: go
 
 go:
-  - 1.7
+  - "1.12"
 
 env:
-    - BUILDER_VERSION=0.11.0
-
-cache:
-    directories:
-        - ./builder-cache
+  - GO111MODULE=on GOPROXY=https://proxy.golang.org
         
 notifications:
-    email: false
-
-before_install:
-    # Grab builder from the cache, or download it if we can't.
-    - cp ./builder-cache/builder-$BUILDER_VERSION ./builder || wget https://downloads.giantswarm.io/builder/$BUILDER_VERSION/builder && chmod +x ./builder
-    - chmod +x ./builder
-    - export PATH=$PATH:$PWD
+  email: false
 
 script:
-    - make ci-build
-    - ./prometheus-pingdom-exporter
-
-before_cache:
-    - cp ./builder ./builder-cache/builder-$BUILDER_VERSION
+  - make ci-build
+  - ./prometheus-pingdom-exporter
