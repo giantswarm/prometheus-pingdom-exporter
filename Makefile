@@ -1,6 +1,6 @@
 PROJECT=prometheus-pingdom-exporter
 
-GOVERSION=1.7
+GOVERSION=1.15
 
 BIN := $(PROJECT)
 

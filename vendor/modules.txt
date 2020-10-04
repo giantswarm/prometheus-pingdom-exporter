@@ -1,27 +1,38 @@
 # github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973
+## explicit
 github.com/beorn7/perks/quantile
 # github.com/golang/protobuf v1.0.1-0.20180328163153-e09c5db29600
+## explicit
 github.com/golang/protobuf/proto
 # github.com/inconshreveable/mousetrap v1.0.0
+## explicit
 github.com/inconshreveable/mousetrap
 # github.com/matttproud/golang_protobuf_extensions v1.0.1
+## explicit
 github.com/matttproud/golang_protobuf_extensions/pbutil
 # github.com/prometheus/client_golang v0.9.0-pre1
+## explicit
 github.com/prometheus/client_golang/prometheus
 # github.com/prometheus/client_model v0.0.0-20171117100541-99fa1f4be8e5
+## explicit
 github.com/prometheus/client_model/go
 # github.com/prometheus/common v0.0.0-20180413074202-d0f7cd64bda4
+## explicit
 github.com/prometheus/common/expfmt
 github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
 github.com/prometheus/common/model
 # github.com/prometheus/procfs v0.0.0-20180408092902-8b1c2da0d56d
+## explicit
 github.com/prometheus/procfs
 github.com/prometheus/procfs/internal/util
 github.com/prometheus/procfs/nfs
 github.com/prometheus/procfs/xfs
 # github.com/russellcardullo/go-pingdom v0.0.0-20180412165632-7687c8559aa8
+## explicit
 github.com/russellcardullo/go-pingdom/pingdom
 # github.com/spf13/cobra v0.0.2
+## explicit
 github.com/spf13/cobra
 # github.com/spf13/pflag v1.0.1
+## explicit
 github.com/spf13/pflag
