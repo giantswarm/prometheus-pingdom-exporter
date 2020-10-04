@@ -6,21 +6,15 @@ import (
 	"strconv"
 )
 
-// HttpCheck represents a Pingdom http check.
+// HttpCheck represents a Pingdom HTTP check.
 type HttpCheck struct {
 	Name                     string            `json:"name"`
 	Hostname                 string            `json:"hostname,omitempty"`
 	Resolution               int               `json:"resolution,omitempty"`
 	Paused                   bool              `json:"paused,omitempty"`
-	SendToAndroid            bool              `json:"sendtoandroid,omitempty"`
-	SendToEmail              bool              `json:"sendtoemail,omitempty"`
-	SendToIPhone             bool              `json:"sendtoiphone,omitempty"`
-	SendToSms                bool              `json:"sendtosms,omitempty"`
-	SendToTwitter            bool              `json:"sendtotwitter,omitempty"`
 	SendNotificationWhenDown int               `json:"sendnotificationwhendown,omitempty"`
 	NotifyAgainEvery         int               `json:"notifyagainevery,omitempty"`
 	NotifyWhenBackup         bool              `json:"notifywhenbackup,omitempty"`
-	UseLegacyNotifications   bool              `json:"use_legacy_notifications,omitempty"`
 	Url                      string            `json:"url,omitempty"`
 	Encryption               bool              `json:"encryption,omitempty"`
 	Port                     int               `json:"port,omitempty"`
@@ -30,61 +24,102 @@ type HttpCheck struct {
 	ShouldNotContain         string            `json:"shouldnotcontain,omitempty"`
 	PostData                 string            `json:"postdata,omitempty"`
 	RequestHeaders           map[string]string `json:"requestheaders,omitempty"`
-	ContactIds               []int             `json:"contactids,omitempty"`
 	IntegrationIds           []int             `json:"integrationids,omitempty"`
+	ResponseTimeThreshold    int               `json:"responsetime_threshold,omitempty"`
 	Tags                     string            `json:"tags,omitempty"`
 	ProbeFilters             string            `json:"probe_filters,omitempty"`
+	UserIds                  []int             `json:"userids,omitempty"`
+	TeamIds                  []int             `json:"teamids,omitempty"`
+	VerifyCertificate        *bool             `json:"verify_certificate,omitempty"`
+	SSLDownDaysBefore        *int              `json:"ssl_down_days_before,omitempty"`
 }
 
-// PingCheck represents a Pingdom ping check
+// PingCheck represents a Pingdom ping check.
 type PingCheck struct {
 	Name                     string `json:"name"`
 	Hostname                 string `json:"hostname,omitempty"`
 	Resolution               int    `json:"resolution,omitempty"`
 	Paused                   bool   `json:"paused,omitempty"`
-	SendToAndroid            bool   `json:"sendtoandroid,omitempty"`
-	SendToEmail              bool   `json:"sendtoemail,omitempty"`
-	SendToIPhone             bool   `json:"sendtoiphone,omitempty"`
-	SendToSms                bool   `json:"sendtosms,omitempty"`
-	SendToTwitter            bool   `json:"sendtotwitter,omitempty"`
 	SendNotificationWhenDown int    `json:"sendnotificationwhendown,omitempty"`
 	NotifyAgainEvery         int    `json:"notifyagainevery,omitempty"`
 	NotifyWhenBackup         bool   `json:"notifywhenbackup,omitempty"`
-	UseLegacyNotifications   bool   `json:"use_legacy_notifications,omitempty"`
-	ContactIds               []int  `json:"contactids,omitempty"`
 	IntegrationIds           []int  `json:"integrationids,omitempty"`
+	Tags                     string `json:"tags,omitempty"`
+	ResponseTimeThreshold    int    `json:"responsetime_threshold,omitempty"`
 	ProbeFilters             string `json:"probe_filters,omitempty"`
+	UserIds                  []int  `json:"userids,omitempty"`
+	TeamIds                  []int  `json:"teamids,omitempty"`
 }
 
-// Params returns a map of parameters for an HttpCheck that can be sent along
-// with an HTTP PUT request
+// TCPCheck represents a Pingdom TCP check.
+type TCPCheck struct {
+	Name                     string `json:"name"`
+	Hostname                 string `json:"hostname,omitempty"`
+	Resolution               int    `json:"resolution,omitempty"`
+	Paused                   bool   `json:"paused,omitempty"`
+	SendNotificationWhenDown int    `json:"sendnotificationwhendown,omitempty"`
+	NotifyAgainEvery         int    `json:"notifyagainevery,omitempty"`
+	NotifyWhenBackup         bool   `json:"notifywhenbackup,omitempty"`
+	IntegrationIds           []int  `json:"integrationids,omitempty"`
+	Tags                     string `json:"tags,omitempty"`
+	ProbeFilters             string `json:"probe_filters,omitempty"`
+	UserIds                  []int  `json:"userids,omitempty"`
+	TeamIds                  []int  `json:"teamids,omitempty"`
+	Port                     int    `json:"port"`
+	StringToSend             string `json:"stringtosend,omitempty"`
+	StringToExpect           string `json:"stringtoexpect,omitempty"`
+}
+
+// SummaryPerformanceRequest is the API request to Pingdom for a SummaryPerformance.
+type SummaryPerformanceRequest struct {
+	Id            int
+	From          int
+	To            int
+	Resolution    string
+	IncludeUptime bool
+	Probes        string
+	Order         string
+}
+
+// PutParams returns a map of parameters for an HttpCheck that can be sent along
+// with an HTTP PUT request.
 func (ck *HttpCheck) PutParams() map[string]string {
 	m := map[string]string{
-		"name":                     ck.Name,
-		"host":                     ck.Hostname,
-		"resolution":               strconv.Itoa(ck.Resolution),
-		"paused":                   strconv.FormatBool(ck.Paused),
-		"sendtoemail":              strconv.FormatBool(ck.SendToEmail),
-		"sendtosms":                strconv.FormatBool(ck.SendToSms),
-		"sendtotwitter":            strconv.FormatBool(ck.SendToTwitter),
-		"sendtoiphone":             strconv.FormatBool(ck.SendToIPhone),
-		"sendtoandroid":            strconv.FormatBool(ck.SendToAndroid),
-		"sendnotificationwhendown": strconv.Itoa(ck.SendNotificationWhenDown),
-		"notifyagainevery":         strconv.Itoa(ck.NotifyAgainEvery),
-		"notifywhenbackup":         strconv.FormatBool(ck.NotifyWhenBackup),
-		"use_legacy_notifications": strconv.FormatBool(ck.UseLegacyNotifications),
-		"url":            ck.Url,
-		"encryption":     strconv.FormatBool(ck.Encryption),
-		"postdata":       ck.PostData,
-		"contactids":     intListToCDString(ck.ContactIds),
-		"integrationids": intListToCDString(ck.IntegrationIds),
-		"tags":           ck.Tags,
-		"probe_filters":  ck.ProbeFilters,
+		"name":             ck.Name,
+		"host":             ck.Hostname,
+		"resolution":       strconv.Itoa(ck.Resolution),
+		"paused":           strconv.FormatBool(ck.Paused),
+		"notifyagainevery": strconv.Itoa(ck.NotifyAgainEvery),
+		"notifywhenbackup": strconv.FormatBool(ck.NotifyWhenBackup),
+		"url":              ck.Url,
+		"encryption":       strconv.FormatBool(ck.Encryption),
+		"postdata":         ck.PostData,
+		"integrationids":   intListToCDString(ck.IntegrationIds),
+		"tags":             ck.Tags,
+		"probe_filters":    ck.ProbeFilters,
+		"userids":          intListToCDString(ck.UserIds),
+		"teamids":          intListToCDString(ck.TeamIds),
 	}
 
-	// Ignore port is not defined
+	// Ignore zero values
 	if ck.Port != 0 {
 		m["port"] = strconv.Itoa(ck.Port)
+	}
+
+	if ck.SendNotificationWhenDown != 0 {
+		m["sendnotificationwhendown"] = strconv.Itoa(ck.SendNotificationWhenDown)
+	}
+
+	if ck.ResponseTimeThreshold != 0 {
+		m["responsetime_threshold"] = strconv.Itoa(ck.ResponseTimeThreshold)
+	}
+
+	if ck.VerifyCertificate != nil {
+		m["verify_certificate"] = strconv.FormatBool(*ck.VerifyCertificate)
+	}
+
+	if ck.SSLDownDaysBefore != nil {
+		m["ssl_down_days_before"] = strconv.Itoa(*ck.SSLDownDaysBefore)
 	}
 
 	// ShouldContain and ShouldNotContain are mutually exclusive.
@@ -113,7 +148,7 @@ func (ck *HttpCheck) PutParams() map[string]string {
 	return m
 }
 
-// Params returns a map of parameters for an HttpCheck that can be sent along
+// PostParams returns a map of parameters for an HttpCheck that can be sent along
 // with an HTTP POST request. They are the same than the Put params, but
 // empty strings cleared out, to avoid Pingdom API reject the request.
 func (ck *HttpCheck) PostParams() map[string]string {
@@ -129,8 +164,8 @@ func (ck *HttpCheck) PostParams() map[string]string {
 	return params
 }
 
-// Determine whether the HttpCheck contains valid fields.  This can be
-// used to guard against sending illegal values to the Pingdom API
+// Valid determines whether the HttpCheck contains valid fields.  This can be
+// used to guard against sending illegal values to the Pingdom API.
 func (ck *HttpCheck) Valid() error {
 	if ck.Name == "" {
 		return fmt.Errorf("Invalid value for `Name`.  Must contain non-empty string")
@@ -142,7 +177,7 @@ func (ck *HttpCheck) Valid() error {
 
 	if ck.Resolution != 1 && ck.Resolution != 5 && ck.Resolution != 15 &&
 		ck.Resolution != 30 && ck.Resolution != 60 {
-		return fmt.Errorf("Invalid value %v for `Resolution`.  Allowed values are [1,5,15,30,60].", ck.Resolution)
+		return fmt.Errorf("invalid value %v for `Resolution`, allowed values are [1,5,15,30,60]", ck.Resolution)
 	}
 
 	if ck.ShouldContain != "" && ck.ShouldNotContain != "" {
@@ -152,39 +187,50 @@ func (ck *HttpCheck) Valid() error {
 	return nil
 }
 
-// Params returns a map of parameters for a PingCheck that can be sent along
-// with an HTTP PUT request
+// PutParams returns a map of parameters for a PingCheck that can be sent along
+// with an HTTP PUT request.
 func (ck *PingCheck) PutParams() map[string]string {
-	return map[string]string{
-		"name":                     ck.Name,
-		"host":                     ck.Hostname,
-		"resolution":               strconv.Itoa(ck.Resolution),
-		"paused":                   strconv.FormatBool(ck.Paused),
-		"sendtoemail":              strconv.FormatBool(ck.SendToEmail),
-		"sendtosms":                strconv.FormatBool(ck.SendToSms),
-		"sendtotwitter":            strconv.FormatBool(ck.SendToTwitter),
-		"sendtoiphone":             strconv.FormatBool(ck.SendToIPhone),
-		"sendtoandroid":            strconv.FormatBool(ck.SendToAndroid),
-		"sendnotificationwhendown": strconv.Itoa(ck.SendNotificationWhenDown),
-		"notifyagainevery":         strconv.Itoa(ck.NotifyAgainEvery),
-		"notifywhenbackup":         strconv.FormatBool(ck.NotifyWhenBackup),
-		"use_legacy_notifications": strconv.FormatBool(ck.UseLegacyNotifications),
-		"contactids":               intListToCDString(ck.ContactIds),
-		"integrationids":           intListToCDString(ck.IntegrationIds),
-		"probe_filters":            ck.ProbeFilters,
+	m := map[string]string{
+		"name":             ck.Name,
+		"host":             ck.Hostname,
+		"resolution":       strconv.Itoa(ck.Resolution),
+		"paused":           strconv.FormatBool(ck.Paused),
+		"notifyagainevery": strconv.Itoa(ck.NotifyAgainEvery),
+		"notifywhenbackup": strconv.FormatBool(ck.NotifyWhenBackup),
+		"integrationids":   intListToCDString(ck.IntegrationIds),
+		"probe_filters":    ck.ProbeFilters,
+		"userids":          intListToCDString(ck.UserIds),
+		"teamids":          intListToCDString(ck.TeamIds),
 	}
+
+	if ck.SendNotificationWhenDown != 0 {
+		m["sendnotificationwhendown"] = strconv.Itoa(ck.SendNotificationWhenDown)
+	}
+
+	if ck.ResponseTimeThreshold != 0 {
+		m["responsetime_threshold"] = strconv.Itoa(ck.ResponseTimeThreshold)
+	}
+
+	return m
 }
 
-// Params returns a map of parameters for a PingCheck that can be sent along
+// PostParams returns a map of parameters for a PingCheck that can be sent along
 // with an HTTP POST request. Same as PUT.
 func (ck *PingCheck) PostParams() map[string]string {
 	params := ck.PutParams()
+
+	for k, v := range params {
+		if v == "" {
+			delete(params, k)
+		}
+	}
+
 	params["type"] = "ping"
 	return params
 }
 
-// Determine whether the PingCheck contains valid fields.  This can be
-// used to guard against sending illegal values to the Pingdom API
+// Valid determines whether the PingCheck contains valid fields.  This can be
+// used to guard against sending illegal values to the Pingdom API.
 func (ck *PingCheck) Valid() error {
 	if ck.Name == "" {
 		return fmt.Errorf("Invalid value for `Name`.  Must contain non-empty string")
@@ -196,8 +242,79 @@ func (ck *PingCheck) Valid() error {
 
 	if ck.Resolution != 1 && ck.Resolution != 5 && ck.Resolution != 15 &&
 		ck.Resolution != 30 && ck.Resolution != 60 {
-		return fmt.Errorf("Invalid value %v for `Resolution`.  Allowed values are [1,5,15,30,60].", ck.Resolution)
+		return fmt.Errorf("invalid value %v for `Resolution`, allowed values are [1,5,15,30,60]", ck.Resolution)
 	}
+	return nil
+}
+
+// PutParams returns a map of parameters for a TCPCheck that can be sent along
+// with an HTTP PUT request.
+func (ck *TCPCheck) PutParams() map[string]string {
+	m := map[string]string{
+		"name":             ck.Name,
+		"host":             ck.Hostname,
+		"resolution":       strconv.Itoa(ck.Resolution),
+		"paused":           strconv.FormatBool(ck.Paused),
+		"notifyagainevery": strconv.Itoa(ck.NotifyAgainEvery),
+		"notifywhenbackup": strconv.FormatBool(ck.NotifyWhenBackup),
+		"integrationids":   intListToCDString(ck.IntegrationIds),
+		"probe_filters":    ck.ProbeFilters,
+		"tags":             ck.Tags,
+		"userids":          intListToCDString(ck.UserIds),
+		"teamids":          intListToCDString(ck.TeamIds),
+		"port":             strconv.Itoa(ck.Port),
+	}
+
+	if ck.SendNotificationWhenDown != 0 {
+		m["sendnotificationwhendown"] = strconv.Itoa(ck.SendNotificationWhenDown)
+	}
+
+	if ck.StringToSend != "" {
+		m["stringtosend"] = ck.StringToSend
+	}
+
+	if ck.StringToExpect != "" {
+		m["stringtoexpect"] = ck.StringToExpect
+	}
+
+	return m
+}
+
+// PostParams returns a map of parameters for a TCPCheck that can be sent along
+// with an HTTP POST request. Same as PUT.
+func (ck *TCPCheck) PostParams() map[string]string {
+	params := ck.PutParams()
+
+	for k, v := range params {
+		if v == "" {
+			delete(params, k)
+		}
+	}
+
+	params["type"] = "tcp"
+	return params
+}
+
+// Valid determines whether the TCPCheck contains valid fields.  This can be
+// used to guard against sending illegal values to the Pingdom API.
+func (ck *TCPCheck) Valid() error {
+	if ck.Name == "" {
+		return fmt.Errorf("invalid value for `Name`, must contain non-empty string")
+	}
+
+	if ck.Hostname == "" {
+		return fmt.Errorf("invalid value for `Hostname`, must contain non-empty string")
+	}
+
+	if ck.Resolution != 1 && ck.Resolution != 5 && ck.Resolution != 15 &&
+		ck.Resolution != 30 && ck.Resolution != 60 {
+		return fmt.Errorf("invalid value %v for `Resolution`, allowed values are [1,5,15,30,60]", ck.Resolution)
+	}
+
+	if ck.Port < 1 {
+		return fmt.Errorf("Invalid value for `Port`.  Must contain an integer >= 1")
+	}
+
 	return nil
 }
 
@@ -211,4 +328,31 @@ func intListToCDString(integers []int) string {
 		}
 	}
 	return CDString
+}
+
+// Valid determines whether a SummaryPerformanceRequest contains valid fields for the Pingdom API.
+func (csr SummaryPerformanceRequest) Valid() error {
+	if csr.Id == 0 {
+		return ErrMissingId
+	}
+
+	if csr.Resolution != "" && csr.Resolution != "hour" && csr.Resolution != "day" && csr.Resolution != "week" {
+		return ErrBadResolution
+	}
+	return nil
+}
+
+// GetParams returns a map of params for a Pingdom SummaryPerformanceRequest.
+func (csr SummaryPerformanceRequest) GetParams() (params map[string]string) {
+	params = make(map[string]string)
+
+	if csr.Resolution != "" {
+		params["resolution"] = csr.Resolution
+	}
+
+	if csr.IncludeUptime {
+		params["includeuptime"] = "true"
+	}
+
+	return
 }

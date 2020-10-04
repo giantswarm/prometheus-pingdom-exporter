@@ -3,7 +3,7 @@ sudo: false # Explicitly use container-based infrastructure
 language: go
 
 go:
-  - 1.7
+  - 1.15
 
 env:
     - BUILDER_VERSION=0.11.0

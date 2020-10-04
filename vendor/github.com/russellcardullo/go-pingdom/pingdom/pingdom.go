@@ -9,38 +9,54 @@ import (
 )
 
 const (
-	defaultBaseURL = "https://api.pingdom.com"
+	defaultBaseURL = "https://api.pingdom.com/api/3.1"
 )
 
-// Client represents a client to the Pingdom API.  This package also
-// provides a NewClient function for convenience to initialize a client
-// with default parameters.
+// Client represents a client to the Pingdom API.
 type Client struct {
-	User         string
-	Password     string
-	APIKey       string
-	AccountEmail string
+	APIToken     string
 	BaseURL      *url.URL
 	client       *http.Client
 	Checks       *CheckService
-	Contacts     *ContactService
+	Maintenances *MaintenanceService
+	Probes       *ProbeService
 }
 
-// NewClient returns a Pingdom client with a default base URL and HTTP client
-func NewClient(user string, password string, key string) *Client {
-	baseURL, _ := url.Parse(defaultBaseURL)
-	c := &Client{User: user, Password: password, APIKey: key, BaseURL: baseURL}
-	c.client = http.DefaultClient
+// ClientConfig represents a configuration for a pingdom client.
+type ClientConfig struct {
+	APIToken   string
+	BaseURL    string
+	HTTPClient *http.Client
+}
+
+// NewClientWithConfig returns a Pingdom client.
+func NewClientWithConfig(config ClientConfig) (*Client, error) {
+	var baseURL *url.URL
+	var err error
+	if config.BaseURL != "" {
+		baseURL, err = url.Parse(config.BaseURL)
+	} else {
+		baseURL, err = url.Parse(defaultBaseURL)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	c := &Client{
+		APIToken: config.APIToken,
+		BaseURL:  baseURL,
+	}
+
+	if config.HTTPClient != nil {
+		c.client = config.HTTPClient
+	} else {
+		c.client = http.DefaultClient
+	}
+
 	c.Checks = &CheckService{client: c}
-	c.Contacts = &ContactService{client: c}
-	return c
-}
-
-// NewMultiUserClient extends NewClient to allow Multi-User authentication
-func NewMultiUserClient(user string, password string, key string, accountEmail string) *Client {
-	c := NewClient(user, password, key)
-	c.AccountEmail = accountEmail
-	return c
+	c.Maintenances = &MaintenanceService{client: c}
+	c.Probes = &ProbeService{client: c}
+	return c, nil
 }
 
 // NewRequest makes a new HTTP Request.  The method param should be an HTTP method in
@@ -50,7 +66,7 @@ func NewMultiUserClient(user string, password string, key string, accountEmail s
 // ListChecks, etc but this method is provided to allow for making other
 // API calls that might not be built in.
 func (pc *Client) NewRequest(method string, rsc string, params map[string]string) (*http.Request, error) {
-	baseUrl, err := url.Parse(pc.BaseURL.String() + rsc)
+	baseURL, err := url.Parse(pc.BaseURL.String() + rsc)
 	if err != nil {
 		return nil, err
 	}
@@ -60,15 +76,11 @@ func (pc *Client) NewRequest(method string, rsc string, params map[string]string
 		for k, v := range params {
 			ps.Set(k, v)
 		}
-		baseUrl.RawQuery = ps.Encode()
+		baseURL.RawQuery = ps.Encode()
 	}
 
-	req, err := http.NewRequest(method, baseUrl.String(), nil)
-	req.SetBasicAuth(pc.User, pc.Password)
-	req.Header.Add("App-Key", pc.APIKey)
-	if pc.AccountEmail != "" {
-		req.Header.Add("Account-Email", pc.AccountEmail)
-	}
+	req, err := http.NewRequest(method, baseURL.String(), nil)
+	req.Header.Add("Authorization", "Bearer "+pc.APIToken)
 	return req, err
 }
 
@@ -112,7 +124,7 @@ func validateResponse(r *http.Response) error {
 
 	bodyBytes, _ := ioutil.ReadAll(r.Body)
 	bodyString := string(bodyBytes)
-	m := &errorJsonResponse{}
+	m := &errorJSONResponse{}
 	err := json.Unmarshal([]byte(bodyString), &m)
 	if err != nil {
 		return err
