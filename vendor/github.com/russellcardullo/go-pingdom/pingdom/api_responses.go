@@ -5,70 +5,169 @@ import (
 	"fmt"
 )
 
-// PingdomResponse represents a general response from the Pingdom API
+// PingdomResponse represents a general response from the Pingdom API.
 type PingdomResponse struct {
 	Message string `json:"message"`
 }
 
-// PingdomError represents an error response from the Pingdom API
+// PingdomError represents an error response from the Pingdom API.
 type PingdomError struct {
 	StatusCode int    `json:"statuscode"`
 	StatusDesc string `json:"statusdesc"`
 	Message    string `json:"errormessage"`
 }
 
-// CheckResponse represents the json response for a check from the Pingdom API
+// CheckResponse represents the JSON response for a check from the Pingdom API.
 type CheckResponse struct {
-	ID                       int                `json:"id"`
-	Name                     string             `json:"name"`
-	Resolution               int                `json:"resolution,omitempty"`
-	SendToAndroid            bool               `json:"sendtoandroid,omitempty"`
-	SendToEmail              bool               `json:"sendtoemail,omitempty"`
-	SendToIPhone             bool               `json:"sendtoiphone,omitempty"`
-	SendToSms                bool               `json:"sendtosms,omitempty"`
-	SendToTwitter            bool               `json:"sendtotwitter,omitempty"`
-	SendNotificationWhenDown int                `json:"sendnotificationwhendown,omitempty"`
-	NotifyAgainEvery         int                `json:"notifyagainevery,omitempty"`
-	NotifyWhenBackup         bool               `json:"notifywhenbackup,omitempty"`
-	Created                  int64              `json:"created,omitempty"`
-	Hostname                 string             `json:"hostname,omitempty"`
-	Status                   string             `json:"status,omitempty"`
-	LastErrorTime            int64              `json:"lasterrortime,omitempty"`
-	LastTestTime             int64              `json:"lasttesttime,omitempty"`
-	LastResponseTime         int64              `json:"lastresponsetime,omitempty"`
-	Paused                   bool               `json:"paused,omitempty"`
-	ContactIds               []int              `json:"contactids,omitempty"`
-	IntegrationIds           []int              `json:"integrationids,omitempty"`
-	Type                     CheckResponseType  `json:"type,omitempty"`
-	Tags                     []CheckResponseTag `json:"tags,omitempty"`
+	ID                       int                 `json:"id"`
+	Name                     string              `json:"name"`
+	Resolution               int                 `json:"resolution,omitempty"`
+	SendNotificationWhenDown int                 `json:"sendnotificationwhendown,omitempty"`
+	NotifyAgainEvery         int                 `json:"notifyagainevery,omitempty"`
+	NotifyWhenBackup         bool                `json:"notifywhenbackup,omitempty"`
+	Created                  int64               `json:"created,omitempty"`
+	Hostname                 string              `json:"hostname,omitempty"`
+	Status                   string              `json:"status,omitempty"`
+	LastErrorTime            int64               `json:"lasterrortime,omitempty"`
+	LastTestTime             int64               `json:"lasttesttime,omitempty"`
+	LastResponseTime         int64               `json:"lastresponsetime,omitempty"`
+	Paused                   bool                `json:"paused,omitempty"`
+	IntegrationIds           []int               `json:"integrationids,omitempty"`
+	SeverityLevel            string              `json:"severity_level,omitempty"`
+	Type                     CheckResponseType   `json:"type,omitempty"`
+	Tags                     []CheckResponseTag  `json:"tags,omitempty"`
+	UserIds                  []int               `json:"userids,omitempty"`
+	Teams                    []CheckTeamResponse `json:"teams,omitempty"`
+	ResponseTimeThreshold    int                 `json:"responsetime_threshold,omitempty"`
+	ProbeFilters             []string            `json:"probe_filters,omitempty"`
+	IP6                      bool                `json:"ip6,omitempty"`
+
+	// Legacy; this is not returned by the API, we backfill the value from the
+	// Teams field.
+	TeamIds []int
 }
 
+// CheckTeamResponse is a Team returned inside of a Check instance. (We can't
+// use TeamResponse because the ID returned here is an int, not a string).
+type CheckTeamResponse struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+// CheckResponseType is the type of the Pingdom check.
 type CheckResponseType struct {
 	Name string                    `json:"-"`
 	HTTP *CheckResponseHTTPDetails `json:"http,omitempty"`
+	TCP  *CheckResponseTCPDetails  `json:"tcp,omitempty"`
 }
 
+// CheckResponseTag is an optional tag that can be added to checks.
 type CheckResponseTag struct {
-	Name  string `json:"name"`
-	Type  string `json:"type"`
-	Count int    `json:"count"`
+	Name  string      `json:"name"`
+	Type  string      `json:"type"`
+	Count interface{} `json:"count"`
 }
 
-type ContactResponse struct {
-	ID                 int    `json:"id"`
-	Name               string `json:"name"`
-	Email              string `json:"email,omitempty"`
-	Cellphone          string `json:"cellphone,omitempty"`
-	CountryISO         string `json:"countryiso,omitempty"`
-	DefaultSMSProvider string `json:"defaultsmsprovider,omitempty"`
-	DirectTwitter      bool   `json:"directtwitter,omitempty"`
-	TwitterUser        string `json:"twitteruser,omitempty"`
-	IphoneTokens       string `json:"iphonetokens,omitempty"`
-	AndroidTokens      string `json:"androidtokens,omitempty"`
-	Paused             bool   `json:"paused,omitempty"`
-	Type               string `json:"type,omitempty"`
+// MaintenanceResponse represents the JSON response for a maintenance from the Pingdom API.
+type MaintenanceResponse struct {
+	ID             int                      `json:"id"`
+	Description    string                   `json:"description"`
+	From           int64                    `json:"from"`
+	To             int64                    `json:"to"`
+	RecurrenceType string                   `json:"recurrencetype"`
+	RepeatEvery    int                      `json:"repeatevery"`
+	EffectiveTo    int64                    `json:"effectiveto"`
+	Checks         MaintenanceCheckResponse `json:"checks"`
 }
 
+// MaintenanceCheckResponse represents Check reply in json MaintenanceResponse.
+type MaintenanceCheckResponse struct {
+	Uptime []int `json:"uptime"`
+	Tms    []int `json:"tms"`
+}
+
+// ProbeResponse represents the JSON response for probes from the Pingdom API.
+type ProbeResponse struct {
+	ID         int    `json:"id"`
+	Country    string `json:"country"`
+	City       string `json:"city"`
+	Name       string `json:"name"`
+	Active     bool   `json:"active"`
+	Hostname   string `json:"hostname"`
+	IP         string `json:"ip"`
+	IPv6       string `json:"ipv6"`
+	CountryISO string `json:"countryiso"`
+	Region     string `json:"region"`
+}
+
+// SummaryPerformanceResponse represents the JSON response for a summary performance from the Pingdom API.
+type SummaryPerformanceResponse struct {
+	Summary SummaryPerformanceMap `json:"summary"`
+}
+
+// SummaryPerformanceMap is the performance broken down over different time intervals.
+type SummaryPerformanceMap struct {
+	Hours []SummaryPerformanceSummary `json:"hours,omitempty"`
+	Days  []SummaryPerformanceSummary `json:"days,omitempty"`
+	Weeks []SummaryPerformanceSummary `json:"weeks,omitempty"`
+}
+
+// SummaryPerformanceSummary is the metrics for a performance summary.
+type SummaryPerformanceSummary struct {
+	AvgResponse int `json:"avgresponse"`
+	Downtime    int `json:"downtime"`
+	StartTime   int `json:"starttime"`
+	Unmonitored int `json:"unmonitored"`
+	Uptime      int `json:"uptime"`
+}
+
+// ResultsResponse represents the JSON response for detailed check results from the Pingdom API.
+type ResultsResponse struct {
+	ActiveProbes []int    `json:"activeprobes"`
+	Results      []Result `json:"results"`
+}
+
+// Result reprensents the JSON response for a detailed check result.
+type Result struct {
+	ProbeID        int    `json:"probeid"`
+	Time           int    `json:"time"`
+	Status         string `json:"status"`
+	ResponseTime   int    `json:"responsetime"`
+	StatusDesc     string `json:"statusdesc"`
+	StatusDescLong string `json:"statusdesclong"`
+}
+
+// UserSmsResponse represents the JSON response for a user SMS contact.
+type UserSmsResponse struct {
+	Id          int    `json:"id"`
+	Severity    string `json:"severity"`
+	CountryCode string `json:"country_code"`
+	Number      string `json:"number"`
+	Provider    string `json:"provider"`
+}
+
+// UserEmailResponse represents the JSON response for a user email contact.
+type UserEmailResponse struct {
+	Id       int    `json:"id"`
+	Severity string `json:"severity"`
+	Address  string `json:"address"`
+}
+
+// CreateUserContactResponse represents the JSON response for a user contact.
+type CreateUserContactResponse struct {
+	Id int `json:"id"`
+}
+
+// UsersResponse represents the JSON response for a Pingom User.
+type UsersResponse struct {
+	Id       int                 `json:"id"`
+	Paused   string              `json:"paused,omitempty"`
+	Username string              `json:"name,omitempty"`
+	Sms      []UserSmsResponse   `json:"sms,omitempty"`
+	Email    []UserEmailResponse `json:"email,omitempty"`
+}
+
+// UnmarshalJSON converts a byte array into a CheckResponseType.
 func (c *CheckResponseType) UnmarshalJSON(b []byte) error {
 	var raw interface{}
 
@@ -98,46 +197,72 @@ func (c *CheckResponseType) UnmarshalJSON(b []byte) error {
 			return err
 		}
 		c.HTTP = rawCheckDetails.HTTP
+		c.TCP = rawCheckDetails.TCP
 	}
 	return nil
 }
 
-// HttpCheck represents a Pingdom http check.
+// CheckResponseHTTPDetails represents the details specific to HTTP checks.
 type CheckResponseHTTPDetails struct {
-	Url              string            `json:"url,omitempty"`
-	Encryption       bool              `json:"encryption,omitempty"`
-	Port             int               `json:"port,omitempty"`
-	Username         string            `json:"username,omitempty"`
-	Password         string            `json:"password,omitempty"`
-	ShouldContain    string            `json:"shouldcontain,omitempty"`
-	ShouldNotContain string            `json:"shouldnotcontain,omitempty"`
-	PostData         string            `json:"postdata,omitempty"`
-	RequestHeaders   map[string]string `json:"requestheaders,omitempty"`
+	Url               string            `json:"url,omitempty"`
+	Encryption        bool              `json:"encryption,omitempty"`
+	Port              int               `json:"port,omitempty"`
+	Username          string            `json:"username,omitempty"`
+	Password          string            `json:"password,omitempty"`
+	ShouldContain     string            `json:"shouldcontain,omitempty"`
+	ShouldNotContain  string            `json:"shouldnotcontain,omitempty"`
+	PostData          string            `json:"postdata,omitempty"`
+	RequestHeaders    map[string]string `json:"requestheaders,omitempty"`
+	VerifyCertificate bool              `json:"verify_certificate,omitempty"`
+	SSLDownDaysBefore int               `json:"ssl_down_days_before,omitempty"`
 }
 
-// Return string representation of the PingdomError
+// CheckResponseTCPDetails represents the details specific to TCP checks.
+type CheckResponseTCPDetails struct {
+	Port           int    `json:"port,omitempty"`
+	StringToSend   string `json:"stringtosend,omitempty"`
+	StringToExpect string `json:"stringtoexpect,omitempty"`
+}
+
+// Return string representation of the PingdomError.
 func (r *PingdomError) Error() string {
 	return fmt.Sprintf("%d %v: %v", r.StatusCode, r.StatusDesc, r.Message)
 }
 
-// private types used to unmarshall json responses from pingdom
+// private types used to unmarshall JSON responses from Pingdom.
 
-type listChecksJsonResponse struct {
+type listChecksJSONResponse struct {
 	Checks []CheckResponse `json:"checks"`
 }
 
-type checkDetailsJsonResponse struct {
+type listMaintenanceJSONResponse struct {
+	Maintenances []MaintenanceResponse `json:"maintenance"`
+}
+
+type listProbesJSONResponse struct {
+	Probes []ProbeResponse `json:"probes"`
+}
+
+type checkDetailsJSONResponse struct {
 	Check *CheckResponse `json:"check"`
 }
 
-type contactDetailsJsonResponse struct {
-	Contact *ContactResponse `json:"contact"`
+type maintenanceDetailsJSONResponse struct {
+	Maintenance *MaintenanceResponse `json:"maintenance"`
 }
 
-type listContactsJsonResponse struct {
-	Contacts []ContactResponse `json:"contacts"`
+type createUserContactJSONResponse struct {
+	Contact *CreateUserContactResponse `json:"contact_target"`
 }
 
-type errorJsonResponse struct {
+type createUserJSONResponse struct {
+	User *UsersResponse `json:"user"`
+}
+
+type listUsersJSONResponse struct {
+	Users []UsersResponse `json:"users"`
+}
+
+type errorJSONResponse struct {
 	Error *PingdomError `json:"error"`
 }

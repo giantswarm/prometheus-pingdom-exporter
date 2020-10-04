@@ -11,7 +11,7 @@ require (
 	github.com/prometheus/client_model v0.0.0-20171117100541-99fa1f4be8e5 // indirect
 	github.com/prometheus/common v0.0.0-20180413074202-d0f7cd64bda4 // indirect
 	github.com/prometheus/procfs v0.0.0-20180408092902-8b1c2da0d56d // indirect
-	github.com/russellcardullo/go-pingdom v0.0.0-20180412165632-7687c8559aa8
+	github.com/russellcardullo/go-pingdom v1.2.0
 	github.com/spf13/cobra v0.0.2
 	github.com/spf13/pflag v1.0.1 // indirect
 )

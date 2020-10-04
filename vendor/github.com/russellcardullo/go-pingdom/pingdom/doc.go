@@ -4,7 +4,11 @@ supports working with basic HTTP and ping checks.
 
 Construct a new Pingdom client:
 
-	client := pingdom.NewClient("pingdom_username", "pingdom_password", "pingdom_api_key")
+	client, err := pingdom.NewClientWithConfig(pingdom.ClientConfig{
+		Username: "pingdom_username",
+		Password: "pingdom_password",
+		APIKey: "pingdom_api_key",
+	})
 
 Using a Pingdom client, you can access supported services.
 
@@ -25,6 +29,12 @@ Get a list of all checks:
 Create a new HTTP check:
 
 	newCheck := pingdom.Check{Name: "Test Check", Hostname: "example.com", Resolution: 5}
+	check, err := client.Checks.Create(&newCheck)
+	fmt.Println("Created check:", check) // {ID, Name}
+
+Create a new HTTP check with alerts for specified users:
+
+	newCheck := pingdom.Check{Name: "Test Check", Hostname: "example.com", Resolution: 5, UserIds: []int{12345}}
 	check, err := client.Checks.Create(&newCheck)
 	fmt.Println("Created check:", check) // {ID, Name}
 
