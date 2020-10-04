@@ -1,5 +1,6 @@
 FROM alpine:3.8
-MAINTAINER Joseph Salisbury <joseph@giantswarm.io>
+
+LABEL maintainer="Joseph Salisbury <joseph@giantswarm.io>"
 
 COPY ./prometheus-pingdom-exporter /prometheus-pingdom-exporter
 
