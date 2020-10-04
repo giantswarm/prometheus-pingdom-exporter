@@ -1,9 +1,5 @@
 PROJECT=prometheus-pingdom-exporter
 
-BUILD_PATH := $(shell pwd)/.gobuild
-GS_PATH := $(BUILD_PATH)/src/github.com/giantswarm
-GOPATH := $(BUILD_PATH)
-
 GOVERSION=1.7
 
 BIN := $(PROJECT)
@@ -34,53 +30,37 @@ BUILD_COMMAND=go build -a \
 
 all: $(BIN)
 
-clean:
-	rm -rf $(BUILD_PATH) $(BIN) bin-dist/ build/
-
-.gobuild:
-	@mkdir -p $(GS_PATH)
-	@rm -f $(GS_PATH)/$(PROJECT) && cd "$(GS_PATH)" && ln -s ../../../.. $(PROJECT)
-
-	@builder get dep -b 1238ba19d24b0b9ceee2094e1cb31947d45c3e86 https://github.com/spf13/cobra.git $(GOPATH)/src/github.com/spf13/cobra
-	@builder get dep -b cb88ea77998c3f024757528e3305022ab50b43be https://github.com/spf13/pflag.git $(GOPATH)/src/github.com/spf13/pflag
-	
-	@builder get dep -b cf63f55faae709a6bcd0ce28c4ae26f6106954cb https://github.com/russellcardullo/go-pingdom $(GOPATH)/src/github.com/russellcardullo/go-pingdom
-
-	@builder get dep -b 488edd04dc224ba64c401747cd0a4b5f05dfb234 https://github.com/prometheus/client_golang.git $(GOPATH)/src/github.com/prometheus/client_golang
-	@builder get dep -b 3ac7bf7a47d159a033b107610db8a1b6575507a4 https://github.com/beorn7/perks.git $(GOPATH)/src/github.com/beorn7/perks
-	@builder get dep -b 3b06fc7a4cad73efce5fe6217ab6c33e7231ab4a https://github.com/golang/protobuf.git $(GOPATH)/src/github.com/golang/protobuf
-	@builder get dep -b fa8ad6fec33561be4280a8f0514318c79d7f6cb6 https://github.com/prometheus/client_model.git $(GOPATH)/src/github.com/prometheus/client_model
-	@builder get dep -b 3a184ff7dfd46b9091030bf2e56c71112b0ddb0e https://github.com/prometheus/common.git $(GOPATH)/src/github.com/prometheus/common
-	@builder get dep -b abf152e5f3e97f2fafac028d2cc06c1feb87ffa5 https://github.com/prometheus/procfs.git $(GOPATH)/src/github.com/prometheus/procfs
-	@builder get dep -b c12348ce28de40eed0136aa2b644d0ee0650e56c https://github.com/matttproud/golang_protobuf_extensions.git $(GOPATH)/src/github.com/matttproud/golang_protobuf_extensions
-
 deps:
-	@${MAKE} -B -s .gobuild
+	GO111MODULE=on go get -v ./...
 
-$(BIN): $(SOURCE) VERSION .gobuild
+clean:
+	rm -rf $(BIN) bin-dist/ build/
+
+$(BIN): $(SOURCE) VERSION
 	CGO_ENABLED=0
 	
 	@echo Building inside Docker container for $(GOOS)/$(GOARCH)
 	docker run \
 	    --rm \
-	    -v $(shell pwd):/usr/code \
-	    -e GOPATH=/usr/code/.gobuild \
+	    -v $(shell pwd):/go/src/github.com/giantswarm/$(PROJECT) \
+	    -e GOPATH=/go \
 	    -e GOOS=$(GOOS) \
 	    -e GOARCH=$(GOARCH) \
-	    -w /usr/code \
+	    -e GO111MODULE=on \
+	    -w /go/src/github.com/giantswarm/$(PROJECT) \
 	    golang:$(GOVERSION) \
 	    $(BUILD_COMMAND)
 
-ci-build: $(SOURCE) VERSION .gobuild
+ci-build: $(SOURCE) VERSION
 	CGO_ENABLED=0
 	
 	@echo Building for $(GOOS)/$(GOARCH)
-	$(BUILD_COMMAND)
+	GO111MODULE=on $(BUILD_COMMAND)
 	
 docker-image: $(BIN)
 	docker build -t giantswarm/$(PROJECT):$(VERSION) .
 
-bin-dist: $(SOURCE) VERSION .gobuild
+bin-dist: $(SOURCE) VERSION
 	# Remove any old bin-dist or build directories
 	rm -rf bin-dist build
 
